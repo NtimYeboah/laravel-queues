@@ -21,7 +21,7 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
-Route::get('/account/verify/{token}', function(AccountVerificationToken $token) {
+Route::get('/account/verify/{token}', function (AccountVerificationToken $token) {
     
     $token->user()->update([
         'activated' => 1
@@ -31,3 +31,14 @@ Route::get('/account/verify/{token}', function(AccountVerificationToken $token) 
 
     return redirect()->route('login');
 })->name('account.verify');
+
+Route::get('/account/verify/resend/{email}', function ($email) {
+    $user = User::where('email', $email)->first();
+
+    $verification = AccountVerificationToken::create([
+        'token' => random_bytes(32),
+        'user_id' => $user->id
+    ]);
+
+    $user->sendAccountVerificationNotification($verification->token);
+})->name('account.verify.resend');
