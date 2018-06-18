@@ -75,13 +75,13 @@ Register a new user, a message will be shown telling you to confirm your email.
 
 ## Deep Dive
 
-When a user registers Laravel emits the `'Illuminate\Auth\Events\Registered` event. This event holds the registered user. This event is listened to and the listener pushes a confirmation email notification to the `emails:verify-account` queue.
+When a user registers Laravel emits the `Illuminate\Auth\Events\Registered` event. This event holds the registered user. This event is listened to and the listener pushes a confirmation email notification to the `emails:verify-account` queue.
 
 ### Listening to Registered event
 
 To listen to the `'Illuminate\Auth\Events\Registered` event, we register a listener in the `App\Providers\EventServiceProvider`. The name of the listener is `VerifyAccount`
 
-[](https://github.com/NtimYeboah/laravel-queue-example/app/Providers/EventServiceProvider.php)
+[https://github.com/NtimYeboah/laravel-queue-example/app/Providers/EventServiceProvider.php]()
 
 ```php
 ...
@@ -102,7 +102,7 @@ protected $listen = [
 
 The listener class specifies the logic to run to send the notification. In the listener.
 
-[](https://github.com/NtimYeboah/laravel-queue-example/app/Listeners/VerifyAccount.php)
+[https://github.com/NtimYeboah/laravel-queue-example/app/Listeners/VerifyAccount.php]()
 
 ```php
 ...
@@ -133,7 +133,7 @@ To queue a notification, we must specify the connection the notification should 
 
 To queue notifications, Laravel provides the `Illuminate\Contracts\Queue\ShouldQueue` interface that the notification class has to implement.
 
-[](https://github.com/NtimYeboah/laravel-queue-example/app/Notifications/VerifyAccountNotification.php)
+[https://github.com/NtimYeboah/laravel-queue-example/app/Notifications/VerifyAccountNotification.php]()
 
 ```php
 use Illuminate\Contracts\Queue\ShouldQueue;
