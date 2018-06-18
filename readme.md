@@ -21,13 +21,13 @@ When a user signs up, an event is emitted that pushes a notification message to 
 
 Clone this repository by running
 
-```
+```bash
 $ https://github.com/NtimYeboah/laravel-queues-example.git
 ```
 
 Install the packages by running the composer install command
 
-```
+```bash
 $ composer install
 ```
 
@@ -35,7 +35,7 @@ Set your database credentials in the .env file
 
 Sign up for [Mailtrap](https://mailtrap.io/) and set your mail credentials in the `.env` file
 
-```
+```bash
 MAIL_DRIVER=smtp
 MAIL_HOST=smtp.mailtrap.io
 MAIL_PORT=2525
@@ -48,13 +48,13 @@ The confirmation email will be sent to mailtrap.
 
 Run the migrations
 
-```
+```bash
 $ php artisan migrate
 ```
 
 Run the queue
 
-```
+```bash
 $ php artisan queue:work redis --queue=emails:verify-account
 ```
 
@@ -62,7 +62,7 @@ View queue metrics
 
 We will use Laravel [horizon](https://laravel.com/docs/5.6/horizon) to allow us to monitor key metrics in our queue system. We can start horizon by using the artisan command:
 
-```
+```bash
 $ php artisan horizon
 ```
 
@@ -83,7 +83,7 @@ To listen to the `'Illuminate\Auth\Events\Registered` event, we register a liste
 
 [](https://github.com/NtimYeboah/laravel-queue-example/app/Providers/EventServiceProvider.php)
 
-```
+```php
 ...
 
 /**
@@ -104,7 +104,7 @@ The listener class specifies the logic to run to send the notification. In the l
 
 [](https://github.com/NtimYeboah/laravel-queue-example/app/Listeners/VerifyAccount.php)
 
-```
+```php
 ...
 /**
  * Handle the event.
@@ -135,7 +135,7 @@ To queue notifications, Laravel provides the `Illuminate\Contracts\Queue\ShouldQ
 
 [](https://github.com/NtimYeboah/laravel-queue-example/app/Notifications/VerifyAccountNotification.php)
 
-```
+```php
 use Illuminate\Contracts\Queue\ShouldQueue;
 ...
 
@@ -150,7 +150,7 @@ class VerifyAccountNotification extends Notification implements ShouldQueue
 
 We set a property in the notification class called `connection` to the specify the connection the notification should be sent to. In our case, we will use [redis](https://laravel.com/5.6/redis).
 
-```
+```php
 ...
 /**
  * The name of the connection the notification should be sent to.
@@ -166,7 +166,7 @@ public $connection = 'redis';
 
 For the queue name, we also have to set a property in the notification class to specify the queue name. In this case we call the queue name `emails:verify-account`
 
-```
+```php
 ...
 /**
  * The name of the queue the notification should be sent to.
@@ -181,7 +181,7 @@ public $queue = 'emails:verify-account';
 
 In our case, we don't want the job to delay before it's executed. So we set the `delay` propery to `null`
 
-```
+```php
 ...
 /**
  * The time the job should wait before its executed.
@@ -191,8 +191,6 @@ In our case, we don't want the job to delay before it's executed. So we set the 
 public $delay = null;
 ...
 ```
-
-
 
 ## Logging
 
