@@ -2,6 +2,8 @@
 
 This is a simple project to demonstrate how to use message queues in Laravel. In this project, we will queue emails to be sent when a user signs up with our application.
 
+If you do not have a solid grasp of the concept of message queues, I recommend you take a look at this excellent article [here](https://daylerees.com/message-queues/) and come back.
+
 When a user signs up, an event is emitted that pushes a notification message to a queue, then eventually the message is executed to send the mail.
 
 ## Table of contents
@@ -15,6 +17,12 @@ When a user signs up, an event is emitted that pushes a notification message to 
         + [The queue connection](#the-queue-connection)
         + [The queue name](#the-queue-name)
         + [Job delay](#job-delay)
+- [Factors to consider when implementing queues](#factors-to-consider-when-implementing-queues)
+    * [Alert users when job fails](#alert-users-when-job-fails)
+    * [Logging](#logging)
+        + [Logging job execution](#logging-job-execution)
+        + [Logging job failure](#logging-job-failure)
+    * [Visualize queue metrics](#visualize-queue-metrics) 
 
 
 ## Installation and Setup
@@ -32,6 +40,14 @@ $ composer install
 ```
 
 Set your database credentials in the .env file
+
+Set your redis credentials in the `.env` file
+
+```bash
+REDIS_HOST=your-redis-host
+REDIS_PASSWORD=your-redis-password
+REDIS_PORT=6379
+```
 
 Sign up for [Mailtrap](https://mailtrap.io/) and set your mail credentials in the `.env` file
 
@@ -79,9 +95,9 @@ When a user registers Laravel emits the `Illuminate\Auth\Events\Registered` even
 
 ### Listening to Registered event
 
-To listen to the `'Illuminate\Auth\Events\Registered` event, we register a listener in the `App\Providers\EventServiceProvider`. The name of the listener is `VerifyAccount`
+To listen to the `Illuminate\Auth\Events\Registered` event, we register a listener in the `App\Providers\EventServiceProvider`. The name of the listener is `VerifyAccount`
 
-[https://github.com/NtimYeboah/laravel-queue-example/app/Providers/EventServiceProvider.php]()
+[https://github.com/NtimYeboah/laravel-queues-example/blob/master/app/Providers/EventServiceProvider.php](https://github.com/NtimYeboah/laravel-queues-example/app/Providers/EventServiceProvider.php)
 
 ```php
 ...
@@ -100,9 +116,9 @@ protected $listen = [
 ...
 ```
 
-The listener class specifies the logic to run to send the notification. In the listener.
+The listener class specifies the logic to run to send the notification.
 
-[https://github.com/NtimYeboah/laravel-queue-example/app/Listeners/VerifyAccount.php]()
+[https://github.com/NtimYeboah/laravel-queues-example/blob/master/app/Listeners/VerifyAccount.php](https://github.com/NtimYeboah/laravel-queues-example/app/Listeners/VerifyAccount.php)
 
 ```php
 ...
@@ -125,15 +141,15 @@ public function handle(Registered $event)
 
 ### Queuing confirmation email notification
 
-The notification to send the email will be queued so as to improve the response time of our app. Typically, you can manually test a scenario where the notification is queued and a scenario where the notification is not queued. You will notice that the response is faster in former scenario. You can verify this by observing the response time of each request using the network tab of chrome.
+The notification to send the email will be queued so as to improve the response time of our app. Typically, you can manually test a scenario where the notification is queued and a scenario where the notification is not queued. You will notice the response is faster in the scenario where the notification is queued. You can verify this by observing the response time of each request using the network tab of chrome.
 
 To queue a notification, we must specify the connection the notification should be sent to, the name of the queue the notification should be sent to and the time the job should wait before it's executed.
 
 #### Queuing notification
 
-To queue notifications, Laravel provides the `Illuminate\Contracts\Queue\ShouldQueue` interface that the notification class has to implement.
+To queue notifications, you have to implement the `Illuminate\Contracts\Queue\ShouldQueue` interface provided by Laravel. 
 
-[https://github.com/NtimYeboah/laravel-queue-example/app/Notifications/VerifyAccountNotification.php]()
+[https://github.com/NtimYeboah/laravel-queues-example/blob/master/app/Notifications/VerifyAccountNotification.php](https://github.com/NtimYeboah/laravel-queues-example/app/Notifications/VerifyAccountNotification.php)
 
 ```php
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -148,7 +164,7 @@ class VerifyAccountNotification extends Notification implements ShouldQueue
 
 #### The queue connection
 
-We set a property in the notification class called `connection` to the specify the connection the notification should be sent to. In our case, we will use [redis](https://laravel.com/5.6/redis).
+We set a property in the notification class called `connection` to the specify the connection the notification should be sent to. In our case, we will use [redis](https://laravel.com/docs/5.6/redis).
 
 ```php
 ...
@@ -192,29 +208,120 @@ public $delay = null;
 ...
 ```
 
-## Logging
+### Factors to consider when implementing queues
 
+Queued jobs are executed outside of the usual request-response lifecycle, and just like any other system, things will not go according to plan. But rest assured, there are measures that can be put in place to make sure that you are in control. This section takes a look at those measures;
+
+#### Alert users when job fails
+
+There are some instance where jobs fails after reaching the maximum retry limit. In such cases, alert the user so the action can be retaken.
+
+In Laravel, you can define a `failed` method that will be called when the job fails. Inside this method, you can alert the user so the action can be retaken.
+
+```php
+...
+
+/**
+ * The job failed to process.
+ *
+ * @param  Exception  $exception
+ * @return void
+ */
+public function failed(Exception $exception)
+{
+    // Send user notification of failure, etc...
+
+}
+...
 ```
-. . .
+
+#### Logging 
+
+You can log when queue jobs are about to execute, when the job finish running and when the job fails. 
+
+##### Logging job execution
+
+You can log when queue jobs are about to execute, when the job finish running. In this instance, when going through your logs and request are hitting endpoints that queue jobs however, there are no logs of jobs being executed, then you know things are wrong.
+
+Laravel provide events `before` and `after` which are fired when queues are about to be executed and when queues are done executing. You can listen to these events and log the connection, the specific job being executed and the payload or message being queued.
+
+You can listen to these events and log in the `App\Providers\AppServiceProvider.php` class.
+
+[https://github.com/NtimYeboah/laravel-queues-example/blob/master/app/Providers/AppServiceProvider.php](https://github.com/NtimYeboah/laravel-queues-example/app/Providers/AppServiceProvider.php)
+
+
+```php
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Queue\Events\JobProcessed;
+use Illuminate\Queue\Events\JobProcessing;
+
+...
 
 public function boot()
 {
     Queue::before(function (JobProcessing $event) {
-         Log::info('Starting to process job', [
+        Log::info('Starting to process job', [
               'connection' => $event->connectionName,
               'job' => $event->job,
               'payload' => $event->job->payload()
-         ])
+        ]);
     });
+
     Queue::after(function (JobProcessed $event) {
-          Log::info('Finished processing job', [
+        Log::info('Finished processing job', [
               'connection' => $event->connectionName,
               'job' => $event->job,
               'payload' => $event->job->payload()
-         ])
+        ]);
     });
+
+    ...
 }
 
-. . . 
+...
 
 ```
+
+##### Logging job failure
+
+You can as well log jobs that fail to execute. You can listen to the `failing` event in the `App\Providers\AppServiceProvider.php` class.
+
+```php
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Queue\Events\JobFailed;  
+
+...
+
+public function boot()
+{
+    Queue::failing(function (JobFailed $job) {
+        Log::error('Job failed', [
+            'connection' => $event->connectionName,
+            'job' => $event->job,
+            'exception' => $event->exception
+        ]);
+    });
+
+    ...
+}
+
+...
+
+```
+
+
+#### Visualize queue metrics
+
+Viewing server logs is a tedious task for most developers. Again its difficult to get key metrics for you queue systems if you rely on only logs. Using a visualizing tools helps you an overview of how your queues are running. 
+
+Laravel provides [horizon](https://laravel.com/docs/5.6/horizon), a beautiful dashboard and code-driven configuration for your queues when using redis as the queue driver.
+
+You can start horizon by using the artisan command;
+
+```bash
+$ php artisan horizon
+```
+
+We can view horizon dashboard by visiting `/horizon` on your host.
