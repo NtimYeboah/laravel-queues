@@ -97,7 +97,7 @@ When a user registers Laravel emits the `Illuminate\Auth\Events\Registered` even
 
 To listen to the `Illuminate\Auth\Events\Registered` event, we register a listener in the `App\Providers\EventServiceProvider`. The name of the listener is `VerifyAccount`
 
-[https://github.com/NtimYeboah/laravel-queues-example/blob/master/app/Providers/EventServiceProvider.php](https://github.com/NtimYeboah/laravel-queues-example/app/Providers/EventServiceProvider.php)
+[https://github.com/NtimYeboah/laravel-queues-example/app/Providers/EventServiceProvider.php](https://github.com/NtimYeboah/laravel-queues-example/blob/master/app/Providers/EventServiceProvider.php)
 
 ```php
 ...
@@ -118,7 +118,7 @@ protected $listen = [
 
 The listener class specifies the logic to run to send the notification.
 
-[https://github.com/NtimYeboah/laravel-queues-example/blob/master/app/Listeners/VerifyAccount.php](https://github.com/NtimYeboah/laravel-queues-example/app/Listeners/VerifyAccount.php)
+[https://github.com/NtimYeboah/laravel-queues-example/app/Listeners/VerifyAccount.php](https://github.com/NtimYeboah/laravel-queues-example/blob/master/app/Listeners/VerifyAccount.php)
 
 ```php
 ...
@@ -149,7 +149,7 @@ To queue a notification, we must specify the connection the notification should 
 
 To queue notifications, you have to implement the `Illuminate\Contracts\Queue\ShouldQueue` interface provided by Laravel. 
 
-[https://github.com/NtimYeboah/laravel-queues-example/blob/master/app/Notifications/VerifyAccountNotification.php](https://github.com/NtimYeboah/laravel-queues-example/app/Notifications/VerifyAccountNotification.php)
+[https://github.com/NtimYeboah/laravel-queues-example/app/Notifications/VerifyAccountNotification.php](https://github.com/NtimYeboah/laravel-queues-example/blob/master/app/Notifications/VerifyAccountNotification.php)
 
 ```php
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -247,7 +247,7 @@ Laravel provide events `before` and `after` which are fired when queues are abou
 
 You can listen to these events and log in the `App\Providers\AppServiceProvider.php` class.
 
-[https://github.com/NtimYeboah/laravel-queues-example/blob/master/app/Providers/AppServiceProvider.php](https://github.com/NtimYeboah/laravel-queues-example/app/Providers/AppServiceProvider.php)
+[https://github.com/NtimYeboah/laravel-queues-example/app/Providers/AppServiceProvider.php](https://github.com/NtimYeboah/laravel-queues-example/blob/master/app/Providers/AppServiceProvider.php)
 
 
 ```php
