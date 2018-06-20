@@ -4,7 +4,7 @@ This is a simple project to demonstrate how to use message queues in Laravel. In
 
 If you do not have a solid grasp of the concept of message queues, I recommend you take a look at this excellent article [here](https://daylerees.com/message-queues/) and come back.
 
-When a user signs up, an event is emitted that pushes a notification message to a queue, then eventually the message is executed to send the mail.
+What happens in this application is when a user signs up, an event is emitted that pushes a notification message to a queue, then eventually the message is executed to send the mail.
 
 ## Table of contents
 
@@ -30,16 +30,16 @@ When a user signs up, an event is emitted that pushes a notification message to 
 Clone this repository by running
 
 ```bash
-$ https://github.com/NtimYeboah/laravel-queues-example.git
+$ git clone https://github.com/NtimYeboah/laravel-queues-example.git
 ```
 
-Install the packages by running the composer install command
+Install the packages by running the composer command
 
 ```bash
 $ composer install
 ```
 
-Set your database credentials in the .env file
+Set your database credentials in the `.env` file
 
 Set your redis credentials in the `.env` file
 
@@ -49,7 +49,7 @@ REDIS_PASSWORD=your-redis-password
 REDIS_PORT=6379
 ```
 
-Sign up for [Mailtrap](https://mailtrap.io/) and set your mail credentials in the `.env` file
+Sign up for [Mailtrap](https://mailtrap.io/) and set your mailbox credentials in the `.env` file
 
 ```bash
 MAIL_DRIVER=smtp
@@ -116,7 +116,7 @@ protected $listen = [
 ...
 ```
 
-The listener class specifies the logic to run to send the notification.
+The listener class specifies the logic to run in order to send the notification.
 
 [https://github.com/NtimYeboah/laravel-queues-example/app/Listeners/VerifyAccount.php](https://github.com/NtimYeboah/laravel-queues-example/blob/master/app/Listeners/VerifyAccount.php)
 
