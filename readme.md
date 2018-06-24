@@ -18,11 +18,11 @@ What happens in this application is when a user signs up, an event is emitted th
         + [The queue name](#the-queue-name)
         + [Job delay](#job-delay)
 - [Factors to consider when implementing queues](#factors-to-consider-when-implementing-queues)
-    * [Alert users when job fails](#alert-users-when-job-fails)
-    * [Logging](#logging)
-        + [Logging job execution](#logging-job-execution)
-        + [Logging job failure](#logging-job-failure)
-    * [Visualize queue metrics](#visualize-queue-metrics) 
+    * [Log](#log)
+        + [Log job execution](#log-job-execution)
+        + [Log job failure](#log-job-failure)
+    * [Alert](#alert)
+    * [Visualize](#visualize) 
 
 
 ## Installation and Setup
@@ -212,34 +212,11 @@ public $delay = null;
 
 Queued jobs are executed outside of the usual request-response lifecycle, and just like any other system, things will not go according to plan. But rest assured, there are measures that can be put in place to make sure that you are in control. This section takes a look at those measures;
 
-#### Alert users when job fails
-
-There are some instance where jobs fails after reaching the maximum retry limit. In such cases, alert the user so the action can be retaken.
-
-In Laravel, you can define a `failed` method that will be called when the job fails. Inside this method, you can alert the user so the action can be retaken.
-
-```php
-...
-
-/**
- * The job failed to process.
- *
- * @param  Exception  $exception
- * @return void
- */
-public function failed(Exception $exception)
-{
-    // Send user notification of failure, etc...
-
-}
-...
-```
-
-#### Logging 
+#### Log
 
 You can log when queue jobs are about to execute, when the job finish running and when the job fails. 
 
-##### Logging job execution
+##### Log job execution
 
 You can log when queue jobs are about to execute, when the job finish running. In this instance, when going through your logs and request are hitting endpoints that queue jobs however, there are no logs of jobs being executed, then you know things are wrong.
 
@@ -283,7 +260,7 @@ public function boot()
 
 ```
 
-##### Logging job failure
+##### Log job failure
 
 You can as well log jobs that fail to execute. You can listen to the `failing` event in the `App\Providers\AppServiceProvider.php` class.
 
@@ -312,7 +289,31 @@ public function boot()
 ```
 
 
-#### Visualize queue metrics
+#### Alert
+
+There are some instance where jobs fails after reaching the maximum retry limit. In such cases, alert the user so the action can be retaken. Also you can alert you developers.
+
+In Laravel, you can define a `failed` method that will be called when the job fails. Inside this method, you can alert the user so the action can be retaken.
+
+```php
+...
+
+/**
+ * The job failed to process.
+ *
+ * @param  Exception  $exception
+ * @return void
+ */
+public function failed(Exception $exception)
+{
+    // Send user notification of failure, etc...
+
+}
+...
+```
+
+
+#### Visualize
 
 Viewing server logs is a tedious task for most developers. Again its difficult to get key metrics for you queue systems if you rely on only logs. Using a visualizing tools helps you an overview of how your queues are running. 
 
